@@ -15,7 +15,7 @@
 # ESP32资料
 
 [ESP32-S3 引脚参考大全](https://lingshunlab.com/book/esp32/esp32-s3-pin-reference)
-
+[ESP32文档](https://duruofu.github.io/ESP32-Guide/docs/guide/%E7%9B%AE%E5%BD%95.html)
 
 
 
