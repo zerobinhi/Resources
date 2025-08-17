@@ -53,4 +53,4 @@
 
 # 操作系统资料
 
-[初识Zephyr？看这个就够了！_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Vg4y1p72X5)
+[初识Zephyr？看这个就够了！_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Vg4y1p72X/)
