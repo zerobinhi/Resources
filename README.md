@@ -45,7 +45,7 @@
 
 [这个人写了很多篇博客，配合下面的视频食用](https://www.cnblogs.com/iini)
 
-[[Matter\] 如何利用Matter走向市场_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1cW4y1A7FB)
+[\[Matter\] 如何利用Matter走向市场_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1cW4y1A7FB)
 
 [CH592F低功耗蓝牙(BLE)技术入门教程_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1Ww41177Ru)
 
