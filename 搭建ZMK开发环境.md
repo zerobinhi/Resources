@@ -96,6 +96,6 @@ west flash -d build --board nrfmicro_13
 * 如果配置正确，`west flash` 会自动调用 `dfu-util` 把 `.hex` 刷入。
 * UF2 支持有时需要把 `.uf2` 转成 `.hex` 才能被 `dfu-util` 识别。
 
-### 5) 遇到的问题
+### 6) 遇到的问题
 
 * **`west: command not found`**：确认你已激活虚拟环境 `source .venv/bin/activate`，或把 `~/.local/bin` 加到 `PATH`。
