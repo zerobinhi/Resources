@@ -94,7 +94,7 @@ sudo vim /etc/xinetd.d/tftp
 
 输入如下内容
 
-```tex
+```ini
 server tftp
 {
 	socket_type = dgram
@@ -116,6 +116,21 @@ server tftp
 sudo service tftpd-hpa start
 ```
 
+新建 override 文件：
+
+```bash
+sudo mkdir -p /etc/systemd/system/tftpd-hpa.service.d
+sudo nano /etc/systemd/system/tftpd-hpa.service.d/override.conf
+```
+
+写入：
+
+```ini
+[Service]
+ProtectHome=false
+ReadWritePaths=/home/zuozhongkai/linux/tftpboot
+```
+
 打开/etc/default/tftpd-hpa 文件
 
 ```bash
@@ -124,13 +139,13 @@ sudo vim /etc/default/tftpd-hpa
 
 替换为以下内容
 
-```tex
+```ini
 # /etc/default/tftpd-hpa
 
 TFTP_USERNAME="tftp"
 TFTP_DIRECTORY="/home/zuozhongkai/linux/tftpboot"
-TFTP_ADDRESS=":69" 
-TFTP_OPTIONS="-l -c -s"
+TFTP_ADDRESS="0.0.0.0:69"
+TFTP_OPTIONS="--secure --create"
 ```
 
 重启 tftp 服务器
@@ -138,6 +153,8 @@ TFTP_OPTIONS="-l -c -s"
 ```bash
 sudo service tftpd-hpa restart
 ```
+
+
 
 
 
