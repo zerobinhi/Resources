@@ -154,10 +154,6 @@ TFTP_OPTIONS="--secure --create"
 sudo service tftpd-hpa restart
 ```
 
-
-
-
-
 # 其他重要文件
 
 ```bash
@@ -183,8 +179,3 @@ sudo vim /etc/profile
 ```tex
 export PATH=$PATH:/usr/local/arm/arm-buildroot-linux-gnueabihf/bin
 ```
-
-
-
-
-

@@ -84,7 +84,6 @@ enable-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
 替换`&lcdif`
 
 ```tex
-
 &lcdif {
 	assigned-clocks = <&clks IMX6UL_CLK_LCDIF_PRE_SEL>;
 	assigned-clock-parents = <&clks IMX6UL_CLK_PLL5_VIDEO_DIV>;

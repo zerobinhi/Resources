@@ -194,6 +194,7 @@ config TARGET_MX6ULL_ALIENTEK_EMMC
 ```
 
 在末尾添加
+
 ```tex
 source "board/freescale/mx6ull_alientek_emmc/Kconfig"
 ```
