@@ -1,101 +1,107 @@
-* ### 1) 安装系统依赖
+## 🪜 1) 安装系统依赖
 
-  打开终端逐条执行（整行复制即可）：
+```bash
+sudo apt update
+sudo apt install -y \
+  git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget \
+  python3-dev python3-venv python3-setuptools python3-pyelftools python3-tk python3-wheel \
+  xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 pipx
+```
 
-  ```bash
-  sudo apt-get update
-  sudo apt-get install --no-install-recommends -y \
-    git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget \
-    python3-dev python3-pip python3-venv python3-setuptools python3-tk python3-wheel \
-    xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
-  ```
+> 💡 `pipx` 用于安全地安装 Python 命令行工具（如 `west`），不会污染系统环境。
 
-  ### 2) 安装 Zephyr SDK（交叉编译工具链）
+---
 
-  ```bash
-  cd ~
-  wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.4/zephyr-sdk-0.17.4_linux-x86_64.tar.xz
-  
-  # （可选）校验
-  wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.4/sha256.sum | shasum --check --ignore-missing
-  
-  # 解压并运行初始化脚本
-  tar xvf zephyr-sdk-0.17.4_linux-x86_64.tar.xz
-  cd zephyr-sdk-0.17.4
-  ./setup.sh
-  ```
+## ⚙️ 2) 安装 Zephyr SDK（交叉编译工具链）
 
-  * `./setup.sh` 会配置工具及检测依赖；若换位置，需重跑一次。
+```bash
+cd ~
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.4/zephyr-sdk-0.17.4_linux-x86_64.tar.xz
+sudo mkdir -p /opt/zephyr-sdk
+sudo tar -xvf zephyr-sdk-0.17.4_linux-x86_64.tar.xz -C /opt/zephyr-sdk --strip-components=1
+sudo /opt/zephyr-sdk/setup.sh
+```
 
-  ### 3) 下载 ZMK 并初始化工作区
+> 📦 SDK 默认安装到 `/opt/zephyr-sdk`，是 Zephyr 推荐路径。
+> 如果换位置，请重新运行 `setup.sh`。
 
-  ```bash
-  cd ~
-  git clone https://github.com/zmkfirmware/zmk.git
-  cd zmk
-  
-  # 用虚拟环境隔离 Python 依赖
-  python3 -m venv .venv
-  source .venv/bin/activate
-  
-  # 安装 west 并获取 Zephyr/ZMK 相关模块
-  pip install -U pip
-  pip install west
-  west init -l app/
-  west update
-  west zephyr-export
-  pip install -r zephyr/scripts/requirements-base.txt
-  ```
+---
 
-  ### 4) 编译固件
+## 🧰 3) 安装 ZMK 并初始化工作区
 
-  ```bash
-  cd app
-  west build -d build -p -b nrfmicro_13 -- -DSHIELD=keyboard -DCONFIG_PICOLIBC=n -DCONFIG_NEWLIB_LIBC=y -DCONFIG_NEWLIB_LIBC_NANO=y
-  ```
+```bash
+cd ~
+git clone https://github.com/zmkfirmware/zmk.git
+cd ~/zmk
+```
 
-  * 首次构建会比较久，结束后生成的固件在 `build/zephyr/zmk.uf2`。
+安装 `west`（Zephyr 项目管理工具）：
 
-  ### 5) 刷写固件
+```bash
+pipx install west
+```
 
-  * **UF2 引导器**（多数 nRF52 小板支持）：双击复位进 UF2 磁盘，把 `zmk.uf2` 直接复制进去即可自动重启。
-  * **DFU/J-Link/OpenOCD** 等方式：可直接 `west flash`。是否可用取决于板子支持的刷写方式与你安装的工具。
+初始化 ZMK 工程：
 
-  ```bash
-  west flash -d build
-  ```
+```bash
+west init -l app/
+west update
+west zephyr-export
+```
 
-  * `-d build/left` 指定构建目录（里面有生成的 `.hex` 文件）。
+安装 Zephyr 依赖：
 
-  * `west` 会自动检测板子，如果配置正确，就把固件刷入。
+```bash
+pipx runpip west install -r zephyr/scripts/requirements-base.txt
+```
 
-  ### 直接 `cp`
+> ✅ 此时不需要自己创建虚拟环境，`pipx` 会自动隔离所有依赖。
+> 所有 `west`、`zephyr` 工具都在 `/home/你的用户名/.local/pipx` 下。
 
-  假设板子挂载在 `/media/username/NANOBOOT`：
+---
 
-  ```bash
-  cp build/left/zephyr/zmk.uf2 /media/username/NANOBOOT/
-  sync
-  ```
+## 🧱 4) 构建 ZMK 固件
 
-  * `sync` 确保写入完成。
-  * 板子会自动重启。
+```bash
+cd ~/zmk/app
+west build -d build -p -b nrfmicro_13 -- -DSHIELD=keyboard -DCONFIG_PICOLIBC=n -DCONFIG_NEWLIB_LIBC=y -DCONFIG_NEWLIB_LIBC_NANO=y
+```
 
-  ## 推荐方法
+> 🧩 `nrfmicro_13` 是你的键盘主控板型号，
+> `SHIELD=keyboard` 指定键盘布局（shield 文件夹名）。
 
-  * 最简单、最安全的方法就是 **让板子进入 UF2 模式，然后 `cp` `.uf2` 文件**。
-  * 如果想用 `west flash` 自动刷 UF2，可以在 Linux 上安装 `dfu-util` 并设置 `BOARD` 支持 DFU。
+编译成功后，固件会在：
 
-  在 ZMK/Zephyr 下：
+```
+build/zephyr/zmk.uf2
+```
 
-  ```bash
-  sudo apt install dfu-util
-  west flash -d build --board nrfmicro_13
-  ```
+---
 
-  * 如果配置正确，`west flash` 会自动调用 `dfu-util` 把 `.hex` 刷入。
-  * UF2 支持有时需要把 `.uf2` 转成 `.hex` 才能被 `dfu-util` 识别。
+## 🔥 5) 刷写固件
 
-  ### 6) 遇到的问题
+### 🔹 UF2 方式（推荐）
 
-  * **`west: command not found`**：确认你已激活虚拟环境 `source .venv/bin/activate`，或把 `~/.local/bin` 加到 `PATH`。
+双击复位进入 UF2 模式（会出现一个虚拟磁盘），然后：
+
+```bash
+cp build/zephyr/zmk.uf2 /media/$USER/NANOBOOT/
+sync
+```
+
+> 💡 `sync` 确保写入完成，板子会自动重启。
+
+---
+
+### 🔹 west 自动刷写（DFU/J-Link/OpenOCD）
+
+如果板子支持 DFU，可执行：
+
+```bash
+sudo apt install dfu-util
+west flash -d build --board nrfmicro_13
+```
+
+> ⚠️ 若使用 UF2 bootloader，此命令无效，请用上面的 `cp` 方式。
+
+---
