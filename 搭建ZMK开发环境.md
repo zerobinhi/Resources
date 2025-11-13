@@ -64,7 +64,7 @@ pipx runpip west install -r zephyr/scripts/requirements-base.txt
 
 ```bash
 cd ~/zmk/app
-west build -d build -p -b nrfmicro_13 -- -DSHIELD=keyboard -DCONFIG_PICOLIBC=n -DCONFIG_NEWLIB_LIBC=y -DCONFIG_NEWLIB_LIBC_NANO=y
+west build -d build -p -b nrfmicro_13 -S nrf52840-nosd -- -DSHIELD=keyboard -DCONFIG_PICOLIBC=n -DCONFIG_NEWLIB_LIBC=y -DCONFIG_NEWLIB_LIBC_NANO=y
 ```
 
 > 🧩 `nrfmicro_13` 是你的键盘主控板型号，
