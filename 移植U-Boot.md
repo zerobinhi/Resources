@@ -306,7 +306,7 @@ saveenv
 
 
 
-```tex
+```bash
 setenv bootargs 'console=ttymxc0,115200 root=/dev/nfs nfsroot=192.168.1.18:/home/zuozhongkai/linux/nfs/rootfs,proto=tcp rw ip=192.168.1.21:192.168.1.18:192.168.0.1:255.255.254.0::eth0:off'
 setenv ipaddr 192.168.1.21
 setenv serverip 192.168.1.18
