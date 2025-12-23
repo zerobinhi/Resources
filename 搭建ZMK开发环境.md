@@ -1,107 +1,174 @@
-## 🪜 1) 安装系统依赖
+~~~bash
+# 如何在Linux系统下搭建开发环境
+
+## Step 1：安装系统依赖
+
+### 1️⃣ 基础系统更新
 
 ```bash
 sudo apt update
-sudo apt install -y \
-  git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget \
-  python3-dev python3-venv python3-setuptools python3-pyelftools python3-tk python3-wheel \
-  xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 pipx
+sudo apt upgrade
 ```
 
-> 💡 `pipx` 用于安全地安装 Python 命令行工具（如 `west`），不会污染系统环境。
-
----
-
-## ⚙️ 2) 安装 Zephyr SDK（交叉编译工具链）
+### 2️⃣ 安装 Zephyr / ZMK 所需依赖
 
 ```bash
-cd ~
-wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.17.4/zephyr-sdk-0.17.4_linux-x86_64.tar.xz
-sudo mkdir -p /opt/zephyr-sdk
-sudo tar -xvf zephyr-sdk-0.17.4_linux-x86_64.tar.xz -C /opt/zephyr-sdk --strip-components=1
-sudo /opt/zephyr-sdk/setup.sh
+sudo apt install --no-install-recommends \
+  git cmake ninja-build gperf ccache dfu-util device-tree-compiler \
+  wget python3-dev python3-venv python3-tk xz-utils file make \
+  gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
 ```
 
-> 📦 SDK 默认安装到 `/opt/zephyr-sdk`，是 Zephyr 推荐路径。
-> 如果换位置，请重新运行 `setup.sh`。
+验证一下：
 
----
+```bash
+cmake --version
+python3 --version
+dtc --version
+```
 
-## 🧰 3) 安装 ZMK 并初始化工作区
+------
+
+## Step 2：获取 ZMK 源码
 
 ```bash
 cd ~
 git clone https://github.com/zmkfirmware/zmk.git
-cd ~/zmk
+cd zmk
 ```
 
-安装 `west`（Zephyr 项目管理工具）：
+------
+
+## Step 3：Python 虚拟环境
+
+### 1️⃣ 安装 venv
 
 ```bash
-pipx install west
+sudo apt install python3-venv
 ```
 
-初始化 ZMK 工程：
+### 2️⃣ 创建并激活虚拟环境
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+终端前缀应该变成：
+
+```bash
+(.venv)
+```
+
+以后只要你想编译 ZMK，就先：
+
+```bash
+cd ~/zmk
+source .venv/bin/activate
+```
+
+------
+
+## Step 4：west + Zephyr 拉取
+
+### 1️⃣ 安装 west
+
+```bash
+pip install west
+```
+
+### 2️⃣ 初始化 Zephyr
 
 ```bash
 west init -l app/
 west update
+```
+
+### 3️⃣ 导出 Zephyr CMake 包
+
+```bash
 west zephyr-export
 ```
 
-安装 Zephyr 依赖：
+### 4️⃣ 安装 Python 依赖
 
 ```bash
-pipx runpip west install -r zephyr/scripts/requirements-base.txt
+west packages pip --install
 ```
 
-> ✅ 此时不需要自己创建虚拟环境，`pipx` 会自动隔离所有依赖。
-> 所有 `west`、`zephyr` 工具都在 `/home/你的用户名/.local/pipx` 下。
+------
 
----
+## Step 5：安装 Zephyr SDK
 
-## 🧱 4) 构建 ZMK 固件
+```bash
+cd ./zephyr
+west sdk install
+```
+
+环境已经搭建完成！
+
+# 烧录教程
+
+将提供的 `keyboard.tar.gz` 拷贝到 ZMK 的 shield 目录：
+
+```bash
+cp ./keyboard.tar.gz ~/zmk/app/boards/shields
+```
+
+进入 shield 目录并解压：
+
+```bash
+cd ~/zmk/app/boards/shields
+tar -zxvf ./keyboard.tar.gz
+```
+
+解压完成后，目录结构应类似于：
+
+```bash
+boards/shields/keyboard/
+├── Kconfig.defconfig
+├── Kconfig.shield
+├── keyboard.conf
+├── keyboard.keymap
+├── keyboard.overlay
+├── keyboard.zmk.yml
+└── README.md
+```
+
+如果结构如上，说明 shield 放置正确。
+
+------
+
+## 三、编译固件
+
+回到 ZMK 应用目录：
 
 ```bash
 cd ~/zmk/app
-west build -d build -p -b nrfmicro_13 -S nrf52840-nosd -- -DSHIELD=keyboard -DCONFIG_PICOLIBC=n -DCONFIG_NEWLIB_LIBC=y -DCONFIG_NEWLIB_LIBC_NANO=y
 ```
 
-> 🧩 `nrfmicro_13` 是你的键盘主控板型号，
-> `SHIELD=keyboard` 指定键盘布局（shield 文件夹名）。
-
-编译成功后，固件会在：
-
-```
-build/zephyr/zmk.uf2
-```
-
----
-
-## 🔥 5) 刷写固件
-
-### 🔹 UF2 方式（推荐）
-
-双击复位进入 UF2 模式（会出现一个虚拟磁盘），然后：
+执行编译命令：
 
 ```bash
-cp build/zephyr/zmk.uf2 /media/$USER/NANOBOOT/
-sync
+west build -d build -p -b nrfmicro/nrf52840 -S nrf52840-nosd -- -DSHIELD=keyboard
 ```
 
-> 💡 `sync` 确保写入完成，板子会自动重启。
+### 参数说明（简要）
 
----
+- `-b nrfmicro/nrf52840`
+   指定使用 nrfmicro 的 nRF52840 变体
+- `-S nrf52840-nosd`
+   使用不包含 SoftDevice 的构建方案（ZMK 推荐）
+- `-DSHIELD=keyboard`
+   指定使用自定义的 `keyboard` shield
 
-### 🔹 west 自动刷写（DFU/J-Link/OpenOCD）
+------
 
-如果板子支持 DFU，可执行：
+## 四、编译结果
+
+如果编译成功，你将在以下路径看到固件文件：
 
 ```bash
-sudo apt install dfu-util
-west flash -d build --board nrfmicro_13
-```
-
-> ⚠️ 若使用 UF2 bootloader，此命令无效，请用上面的 `cp` 方式。
-
----
+ls ~/zmk/app/build/zephyr/zmk.uf2
+```xxxxxxxxxx ls ~/zmk/app/build/zephyr/zmk.uf2bash
+~~~
