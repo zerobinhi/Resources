@@ -154,6 +154,60 @@ TFTP_OPTIONS="--secure --create"
 sudo service tftpd-hpa restart
 ```
 
+# 一、VSCode 免密登录步骤
+
+## 1️⃣ 客户端（Windows）生成 SSH 密钥对
+
+在 **Windows PowerShell / CMD** 中执行：
+
+```bash
+ssh-keygen -t ed25519
+```
+
+> 说明：
+
+- **推荐 ed25519**（更安全、速度更快，RSA 已偏老）
+- 一路回车即可
+- 默认生成位置：
+
+```bash
+C:\Users\你的用户名\.ssh\
+├── id_ed25519        （私钥）
+└── id_ed25519.pub    （公钥）
+```
+
+> ⚠️ 私钥 **绝对不能泄露**，只用 `.pub` 文件
+
+------
+
+## 2️⃣ 服务端（Debian）创建 SSH 目录和 authorized_keys
+
+> ⚠️ **不要用 sudo**，否则文件归属错误，免密会失效
+
+在 Debian 上执行（你刚才卡住的核心步骤就在这里）：
+
+```bash
+# 1. 创建 .ssh 目录（必须先有父目录）
+mkdir ~/.ssh
+
+# 2. 设置目录权限（SSH 强制要求）
+chmod 700 ~/.ssh
+
+# 3. 创建 authorized_keys 文件
+touch ~/.ssh/authorized_keys
+
+# 4. 设置文件权限（SSH 强制要求）
+chmod 600 ~/.ssh/authorized_keys
+```
+
+然后编辑文件：
+
+```bash
+vim ~/.ssh/authorized_keys
+```
+
+把 **Windows 上 id_ed25519.pub 的内容整行粘贴进去**，保存退出。
+
 # 其他重要文件
 
 ```bash
