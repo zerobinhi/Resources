@@ -1,4 +1,3 @@
-~~~bash
 # 如何在Linux系统下搭建开发环境
 
 ## Step 1：安装系统依赖
@@ -170,5 +169,5 @@ west build -d build -p -b nrfmicro/nrf52840 -S nrf52840-nosd -- -DSHIELD=keyboar
 
 ```bash
 ls ~/zmk/app/build/zephyr/zmk.uf2
-```xxxxxxxxxx ls ~/zmk/app/build/zephyr/zmk.uf2bash
-~~~
+```
+xxxxxxxxxx ls ~/zmk/app/build/zephyr/zmk.uf2bash
