@@ -11,7 +11,7 @@ sudo usermod -aG sudo,dialout,uucp $USER
 # 在使用 `sudo` 命令时无需输入密码
 
 ```bash
-sudo bash -c 'echo "zuozhongkai ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
+sudo bash -c 'echo "nickname ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
 ```
 
 重启系统
